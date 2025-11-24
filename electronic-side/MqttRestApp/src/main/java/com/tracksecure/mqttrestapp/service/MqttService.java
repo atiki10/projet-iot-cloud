@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -97,8 +98,16 @@ public class MqttService {
                     SensorData snapshot = new SensorData();
                     snapshot.setDhtData(data.getDhtData());
                     snapshot.setGpsData(data.getGpsData());
-                    sensorDataRepository.save(snapshot);
-                    log.info("✅ DHT data saved to MongoDB");
+                    
+                    // Save asynchronously to avoid blocking the MQTT thread
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            sensorDataRepository.save(snapshot);
+                            log.info("✅ DHT data saved to MongoDB");
+                        } catch (Exception e) {
+                            log.error("❌ Failed to save DHT data to MongoDB: {}", e.getMessage());
+                        }
+                    });
 
                 } catch (Exception e) {
                     lastError = "Parsing error DHT: " + e.getMessage();
@@ -138,8 +147,16 @@ public class MqttService {
                     SensorData snapshot = new SensorData();
                     snapshot.setDhtData(data.getDhtData());
                     snapshot.setGpsData(data.getGpsData());
-                    sensorDataRepository.save(snapshot);
-                    log.info("✅ GPS data saved to MongoDB");
+                    
+                    // Save asynchronously
+                    CompletableFuture.runAsync(() -> {
+                        try {
+                            sensorDataRepository.save(snapshot);
+                            log.info("✅ GPS data saved to MongoDB");
+                        } catch (Exception e) {
+                            log.error("❌ Failed to save GPS data to MongoDB: {}", e.getMessage());
+                        }
+                    });
 
                 } catch (Exception e) {
                     lastError = "Parsing error GPS: " + e.getMessage();
