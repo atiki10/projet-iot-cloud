@@ -10,21 +10,22 @@ const packages: PackageData[] = [
  * Récupère les dernières données de suivi depuis le backend Spring Boot.
  */
 export const fetchTrackingData = async (packageId: string): Promise<TrackingData> => {
-    // const response = await fetch('http://localhost:8080/sensor-data');
-    const response = await fetch('/api/sensor/latest-from-db');
+    const apiUrl = import.meta.env.VITE_API_URL;
+    const response = await fetch(`${apiUrl}/api/sensor/latest-from-db`);
+
     if (!response.ok) {
         throw new Error(`Erreur HTTP ! statut: ${response.status}`);
     }
     const backendData: EnrichedEvent = await response.json();
 
     const transformedData: TrackingData = {
-        temperature: backendData.dhtData.temperature,
-        humidity: backendData.dhtData.humidity,
+        temperature: backendData.temperature,
+        humidity: backendData.humidity,
         coordinates: {
-            lat: backendData.gpsData.latitude,
-            lon: backendData.gpsData.longitude,
+            lat: backendData.latitude,
+            lon: backendData.longitude,
         },
-        timestamp: backendData.dhtData.timestamp,
+        timestamp: backendData.eventTimestamp,
         packageId: packageId,
     };
 
