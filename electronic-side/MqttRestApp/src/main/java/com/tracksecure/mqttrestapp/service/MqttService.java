@@ -30,38 +30,6 @@ public class MqttService {
     @Value("${mqtt.broker.username}")
     private String mqttUser;
 
-package com.tracksecure.mqttrestapp.service;
-
-import com.tracksecure.mqttrestapp.model.SensorData;
-import com.tracksecure.mqttrestapp.repository.SensorDataRepository;
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.concurrent.atomic.AtomicReference;
-
-@Slf4j
-@Service
-@RequiredArgsConstructor
-public class MqttService {
-
-    private final SensorDataRepository sensorDataRepository;
-
-    @Getter
-    private final AtomicReference<SensorData> latestData = new AtomicReference<>(new SensorData());
-
-    @Value("${mqtt.broker.url}")
-    private String brokerUrl;
-
-    @Value("${mqtt.broker.username}")
-    private String mqttUser;
-
     @Value("${mqtt.broker.password}")
     private String mqttPassword;
 
