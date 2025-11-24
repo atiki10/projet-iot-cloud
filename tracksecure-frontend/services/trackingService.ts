@@ -1,4 +1,4 @@
-import { TrackingData, PackageData, BackendSensorData } from '../types';
+import { TrackingData, PackageData, EnrichedEvent } from '../types';
 
 // Simuler une table de colis en mémoire avec l'assignation utilisateur
 const packages: PackageData[] = [
@@ -15,7 +15,7 @@ export const fetchTrackingData = async (packageId: string): Promise<TrackingData
     if (!response.ok) {
         throw new Error(`Erreur HTTP ! statut: ${response.status}`);
     }
-    const backendData: BackendSensorData = await response.json();
+    const backendData: EnrichedEvent = await response.json();
 
     const transformedData: TrackingData = {
         temperature: backendData.dhtData.temperature,

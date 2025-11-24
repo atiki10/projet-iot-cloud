@@ -12,27 +12,29 @@ export interface TrackingData {
 }
 
 export interface PackageData {
-    id: string;
-    username: string; // L'utilisateur à qui le colis est assigné
-    departureLocation: string;
-    pickupLocation: string;
+  id: string;
+  username: string; // L'utilisateur à qui le colis est assigné
+  departureLocation: string;
+  pickupLocation: string;
 }
 
 export interface User {
   username: string;
   role: string;
 }
-// addd BackendSensorData interface
-export interface BackendSensorData {
-  dhtData: {
-    temperature: number;
-    humidity: number;
-    timestamp: string;
-  };
-  gpsData: {
-    longitude: number;
-    latitude: number;
-    satellites: number;
-    timestamp: string;
-  };
+// Interface correspondant au modèle EnrichedEvent du backend
+export interface EnrichedEvent {
+  eventId: string;
+  deviceId: string;
+  shipmentId: string;
+  eventType: string;
+  eventTimestamp: string;
+  receivedTimestamp: string;
+  longitude: number;
+  latitude: number;
+  temperature: number;
+  humidity: number;
+  firmwareVersion?: string;
+  transmissionMethod?: string;
+  metadata?: Record<string, any>;
 }

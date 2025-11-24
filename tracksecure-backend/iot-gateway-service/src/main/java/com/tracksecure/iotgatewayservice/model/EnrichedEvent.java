@@ -8,6 +8,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,7 +18,9 @@ import java.util.Map;
 @ToString
 @Builder
 @EqualsAndHashCode(of = "eventId")
+@Document(collection = "sensor_data")
 public class EnrichedEvent {
+    @Id
     @NotBlank(message = "Event ID is required")
     private String eventId;
     @NotBlank(message = "Device ID is required")
