@@ -30,11 +30,52 @@ public class MqttService {
     @Value("${mqtt.broker.username}")
     private String mqttUser;
 
+package com.tracksecure.mqttrestapp.service;
+
+import com.tracksecure.mqttrestapp.model.SensorData;
+import com.tracksecure.mqttrestapp.repository.SensorDataRepository;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicReference;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MqttService {
+
+    private final SensorDataRepository sensorDataRepository;
+
+    @Getter
+    private final AtomicReference<SensorData> latestData = new AtomicReference<>(new SensorData());
+
+    @Value("${mqtt.broker.url}")
+    private String brokerUrl;
+
+    @Value("${mqtt.broker.username}")
+    private String mqttUser;
+
     @Value("${mqtt.broker.password}")
     private String mqttPassword;
 
     @Value("${mqtt.client.id}")
     private String clientId;
+
+    @Getter
+    private boolean isConnected = false;
+
+    @Getter
+    private String lastError = null;
+
+    @Getter
+    private LocalDateTime lastMessageTime = null;
 
     @PostConstruct
     public void initMqtt() {
@@ -52,10 +93,13 @@ public class MqttService {
             MqttClient client = new MqttClient(brokerUrl, clientId);
             client.connect(options);
             
+            isConnected = true;
+            lastError = null;
             log.info("✅ Successfully connected to MQTT broker");
 
             // Subscribe to DHT11 sensor topic
             client.subscribe("sensor/dht11", (topic, msg) -> {
+                lastMessageTime = LocalDateTime.now();
                 String payload = new String(msg.getPayload());
                 log.info("📥 MQTT message received on '{}': {}", topic, payload);
 
@@ -89,12 +133,14 @@ public class MqttService {
                     log.info("✅ DHT data saved to MongoDB");
 
                 } catch (Exception e) {
+                    lastError = "Parsing error DHT: " + e.getMessage();
                     log.error("❌ Error processing DHT data: {}", e.getMessage(), e);
                 }
             });
 
             // Subscribe to GPS sensor topic
             client.subscribe("sensor/gps", (topic, msg) -> {
+                lastMessageTime = LocalDateTime.now();
                 String payload = new String(msg.getPayload());
                 log.info("📥 MQTT message received on '{}': {}", topic, payload);
 
@@ -128,6 +174,7 @@ public class MqttService {
                     log.info("✅ GPS data saved to MongoDB");
 
                 } catch (Exception e) {
+                    lastError = "Parsing error GPS: " + e.getMessage();
                     log.error("❌ Error processing GPS data: {}", e.getMessage(), e);
                 }
             });
@@ -136,6 +183,8 @@ public class MqttService {
             log.info("📡 Broker: {}, Client ID: {}", brokerUrl, clientId);
 
         } catch (Exception e) {
+            isConnected = false;
+            lastError = "Connection failed: " + e.getMessage();
             log.error("❌ Failed to initialize MQTT connection: {}", e.getMessage(), e);
             e.printStackTrace(); // Print full stack trace for debugging
         }
