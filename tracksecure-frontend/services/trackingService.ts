@@ -11,7 +11,7 @@ const packages: PackageData[] = [
  */
 export const fetchTrackingData = async (packageId: string): Promise<TrackingData> => {
     const apiUrl = import.meta.env.VITE_API_URL;
-    const response = await fetch(`${apiUrl}/api/sensor/latest-from-db`);
+    const response = await fetch(`${apiUrl}/api/sensor/latest`);
 
     if (!response.ok) {
         throw new Error(`Erreur HTTP ! statut: ${response.status}`);
@@ -19,13 +19,13 @@ export const fetchTrackingData = async (packageId: string): Promise<TrackingData
     const backendData: EnrichedEvent = await response.json();
 
     const transformedData: TrackingData = {
-        temperature: backendData.temperature,
-        humidity: backendData.humidity,
+        temperature: backendData.dhtData.temperature,
+        humidity: backendData.dhtData.humidity,
         coordinates: {
-            lat: backendData.latitude,
-            lon: backendData.longitude,
+            lat: backendData.gpsData.latitude,
+            lon: backendData.gpsData.longitude,
         },
-        timestamp: backendData.eventTimestamp,
+        timestamp: backendData.dhtData.timestamp || new Date().toISOString(),
         packageId: packageId,
     };
 

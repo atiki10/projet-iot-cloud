@@ -23,18 +23,18 @@ export interface User {
   role: string;
 }
 // Interface correspondant au modèle EnrichedEvent du backend
+// Interface correspondant au modèle JSON retourné par /api/sensor/latest
 export interface EnrichedEvent {
-  eventId: string;
-  deviceId: string;
-  shipmentId: string;
-  eventType: string;
-  eventTimestamp: string;
-  receivedTimestamp: string;
-  longitude: number;
-  latitude: number;
-  temperature: number;
-  humidity: number;
-  firmwareVersion?: string;
-  transmissionMethod?: string;
-  metadata?: Record<string, any>;
+  id: string | null;
+  dhtData: {
+    temperature: number;
+    humidity: number;
+    timestamp: string | null;
+  };
+  gpsData: {
+    longitude: number;
+    latitude: number;
+    satellites: number;
+    timestamp: string | null;
+  };
 }
