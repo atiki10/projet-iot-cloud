@@ -1,6 +1,5 @@
 package com.tracksecure.mqttrestapp.service;
 
-import com.tracksecure.mqttrestapp.kafka.producer.KafkaPublisher;
 import com.tracksecure.mqttrestapp.model.SensorData;
 import com.tracksecure.mqttrestapp.repository.SensorDataRepository;
 import jakarta.annotation.PostConstruct;
@@ -20,7 +19,6 @@ import java.util.concurrent.atomic.AtomicReference;
 @RequiredArgsConstructor
 public class MqttService {
 
-    private final KafkaPublisher kafkaPublisher;
     private final SensorDataRepository sensorDataRepository;
 
     @Getter
@@ -37,9 +35,6 @@ public class MqttService {
 
     @Value("${mqtt.client.id}")
     private String clientId;
-
-    @Value("${kafka.topic.sensor-data}")
-    private String sensorDataTopic;
 
     @PostConstruct
     public void initMqtt() {
@@ -93,10 +88,6 @@ public class MqttService {
                     sensorDataRepository.save(snapshot);
                     log.info("✅ DHT data saved to MongoDB");
 
-                    // Publish to Kafka
-                    kafkaPublisher.publish(sensorDataTopic, data);
-                    log.info("✅ DHT data published to Kafka topic: {}", sensorDataTopic);
-
                 } catch (Exception e) {
                     log.error("❌ Error processing DHT data: {}", e.getMessage(), e);
                 }
@@ -135,10 +126,6 @@ public class MqttService {
                     snapshot.setGpsData(data.getGpsData());
                     sensorDataRepository.save(snapshot);
                     log.info("✅ GPS data saved to MongoDB");
-
-                    // Publish to Kafka
-                    kafkaPublisher.publish(sensorDataTopic, data);
-                    log.info("✅ GPS data published to Kafka topic: {}", sensorDataTopic);
 
                 } catch (Exception e) {
                     log.error("❌ Error processing GPS data: {}", e.getMessage(), e);
