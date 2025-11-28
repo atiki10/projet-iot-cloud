@@ -17,10 +17,10 @@ const char* ssid = "TP-Link_E70F";
 const char* password = "32455847";
 
 // --- MQTT ---
-const char* mqttServer = "192.168.8.14";
-const int mqttPort = 1883; //8883; // TLS port
-const char* mqttUser = "oussama";
-const char* mqttPassword = "123456";
+const char* mqttServer = "1cc9eeb62f4442a29526b498247e87fc.s1.eu.hivemq.cloud";
+const int mqttPort = 8883; // TLS port
+const char* mqttUser = "testdht";
+const char* mqttPassword = "Testdht11";
 const char* topic_dht = "sensor/dht11";
 const char* topic_gps = "sensor/gps";
 
@@ -47,8 +47,7 @@ VyIHH5aG/rIVrukSBr5y
 )EOF";
 
 // --- Clients ---
-//BearSSL::WiFiClientSecure espClient;
-WiFiClient espClient;
+BearSSL::WiFiClientSecure espClient;
 PubSubClient mqttClient(espClient);
 DHT dht(DHTPIN, DHTTYPE);
 SoftwareSerial gpsSerial(RXD2, TXD2);
@@ -76,7 +75,7 @@ void setup() {
   // espClient.setTrustAnchors(new BearSSL::X509List(ca_cert));
   
   // Option 2: Skip certificate validation (for testing only)
-  //espClient.setInsecure();
+  espClient.setInsecure();
 
   mqttClient.setServer(mqttServer, mqttPort);
   mqttClient.setKeepAlive(60);
